@@ -88,13 +88,14 @@ import java.util.Scanner;
 		uneligne = scanneurFichierSource.nextLine();
 		hostnameFromFile = uneligne.split(" ");
 		
-		while( scanneurFichierSource.hasNextLine() ){
+		do {
 			uneligne = scanneurFichierSource.nextLine();
 			hostnameFromFile = uneligne.split(" ");
 			if(hostnameFromFile[0].equals(hostname)){
 				adresslist.add(hostnameFromFile[1]);
 			}
-		}
+		} while( scanneurFichierSource.hasNextLine() );
+		
 		scanneurFichierSource.close();
 		return adresslist;
 	}

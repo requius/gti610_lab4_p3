@@ -143,8 +143,13 @@ public class UDPReceiver extends Thread {
 				
 				System.out.println(buff.toString());
 				
+				byte[] paquetR = paquetRecu.getData();
+				
 				// ****** Dans le cas d'un paquet requete *****
-
+				if(paquetR[16] == 0){
+					
+					
+				}
 					// *Lecture du Query Domain name, a partir du 13 byte
 
 					// *Sauvegarde du Query Domain name
@@ -165,6 +170,10 @@ public class UDPReceiver extends Thread {
 							// *Envoyer le paquet
 				
 				// ****** Dans le cas d'un paquet reponse *****
+				if(paquetR[16] == 1){
+					
+					
+				}
 						// *Lecture du Query Domain name, a partir du 13 byte
 						
 						// *Passe par dessus Type et Class

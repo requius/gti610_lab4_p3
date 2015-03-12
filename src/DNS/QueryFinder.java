@@ -28,7 +28,7 @@ import java.util.Scanner;
  * l'absence de cette adresse est signale
  * @author Max
  */
-	public class QueryFinder  {
+public class QueryFinder  {
 	
 	private String adresse = null; //hostname de l'adresse a chercher
 	private String filename = null; //fichier ou effectuer la recherche

@@ -144,7 +144,10 @@ public class UDPReceiver extends Thread {
 				System.out.println(buff.toString());
 				
 				byte[] paquetR = paquetRecu.getData();
+				byte[] byteRecu = new byte[BUF_SIZE];
 				
+				String s = new String(paquetRecu.getData());
+				System.out.println("Nom du domaine : " + s.trim());
 				// ****** Dans le cas d'un paquet requete *****
 				if(paquetR[16] == 0){
 					

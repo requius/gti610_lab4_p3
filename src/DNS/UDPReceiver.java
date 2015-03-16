@@ -113,8 +113,6 @@ public class UDPReceiver extends Thread {
 		this.SERVER_DNS = server_dns;
 	}
 
-
-
 	public void setDNSFile(String filename) {
 		DNSFile = filename;
 	}
@@ -122,7 +120,8 @@ public class UDPReceiver extends Thread {
 	public void run() {
 		try {
 			DatagramSocket serveur = new DatagramSocket(this.port); // *Creation d'un socket UDP
-		
+			
+			int domainNameLength = 0;
 			
 			// *Boucle infinie de recpetion
 			while (!this.stop) {
@@ -139,29 +138,34 @@ public class UDPReceiver extends Thread {
 				// *Creation d'un DataInputStream ou ByteArrayInputStream pour
 				// manipuler les bytes du paquet
 
-				ByteArrayInputStream TabInputStream = new ByteArrayInputStream (paquetRecu.getData());
+				ByteArrayInputStream TabInputStream = new ByteArrayInputStream (paquetRecu.getData()); 
 				
 				System.out.println(buff.toString());
 				
-				byte[] paquetR = paquetRecu.getData();
-				byte[] byteRecu = new byte[BUF_SIZE];
+				byte[] paquetR = paquetRecu.getData();			
 				
-				String s = new String(paquetRecu.getData());
-				System.out.println("Nom du domaine : " + s.trim());
+				int reponseRequete = paquetR[7];
+				String adresseIP;
 				// ****** Dans le cas d'un paquet requete *****
-				if(paquetR[16] == 0){
+				
+				if (reponseRequete == 0){
+					System.out.println("Requête");
 					
-					
-				}
 					// *Lecture du Query Domain name, a partir du 13 byte
-
 					// *Sauvegarde du Query Domain name
-					
+					DomainName = getNomDomaine(TabInputStream);
+					System.out.println(DomainName);
+					TabInputStream.skip(16);
 					// *Sauvegarde de l'adresse, du port et de l'identifiant de la requete
-
+					setAdrIP(paquetRecu.getAddress().getHostAddress());
+					setport(paquetRecu.getPort());
+					
 					// *Si le mode est redirection seulement
+					if (RedirectionSeulement){
 						// *Rediriger le paquet vers le serveur DNS
-					// *Sinon
+						
+					}	
+					// *Sinons
 						// *Rechercher l'adresse IP associe au Query Domain name
 						// dans le fichier de correspondance de ce serveur					
 
@@ -171,35 +175,68 @@ public class UDPReceiver extends Thread {
 							// *Creer le paquet de reponse a l'aide du UDPAnswerPaquetCreator
 							// *Placer ce paquet dans le socket
 							// *Envoyer le paquet
-				
-				// ****** Dans le cas d'un paquet reponse *****
-				if(paquetR[16] == 1){
-					
-					
 				}
-						// *Lecture du Query Domain name, a partir du 13 byte
-						
-						// *Passe par dessus Type et Class
-						
-						// *Passe par dessus les premiers champs du ressource record
-						// pour arriver au ressource data qui contient l'adresse IP associe
-						//  au hostname (dans le fond saut de 16 bytes)
-						
-						// *Capture de ou des adresse(s) IP (ANCOUNT est le nombre
-						// de rï¿½ponses retournï¿½es)			
+				// ****** Dans le cas d'un paquet reponse *****
+				else if (reponseRequete == 1) {
+					System.out.println("Réponse");
 					
-						// *Ajouter la ou les correspondance(s) dans le fichier DNS
-						// si elles ne y sont pas deja
-						
+					// *Lecture du Query Domain name, a partir du 13 byte		
+					DomainName = getNomDomaine(TabInputStream);
+					System.out.println(DomainName);
+					
+					// *Passe par dessus Type et Class
+					// *Passe par dessus les premiers champs du ressource record
+					// pour arriver au ressource data qui contient l'adresse IP associe
+					//  au hostname (dans le fond saut de 16 bytes)
+					TabInputStream.skip(16);	
+					
+					// *Capture de ou des adresse(s) IP (ANCOUNT est le nombre
+					// de rï¿½ponses retournï¿½es)
+					adresseIP = (TabInputStream.read() & 0xff) + "."
+							+ (TabInputStream.read() & 0xff) + "."
+							+ (TabInputStream.read() & 0xff) + "."
+							+ (TabInputStream.read() & 0xff);
+					System.out.println(adresseIP);
+					
+				
+					// *Ajouter la ou les correspondance(s) dans le fichier DNS
+					// si elles ne y sont pas deja
+					//AnswerRecorder recorder = new AnswerRecorder(DNSFile, DomainName, adresseIP);	
 						// *Faire parvenir le paquet reponse au demandeur original,
 						// ayant emis une requete avec cet identifiant				
 						// *Placer ce paquet dans le socket
 						// *Envoyer le paquet
+				}
 			}
 //			serveur.close(); //closing server
 		} catch (Exception e) {
 			System.err.println("Problï¿½me ï¿½ l'exï¿½cution :");
 			e.printStackTrace(System.err);
 		}
+	}
+	
+	public String getNomDomaine(ByteArrayInputStream TabInputStream) throws IOException{
+		
+		TabInputStream.skip(12);
+		
+		int longueur = TabInputStream.read();
+		StringBuilder nomDom = new StringBuilder(); 
+		
+		while (longueur != 0){
+			
+			if(nomDom.length() > 0)
+				nomDom.append('.');
+			
+			byte[] domaine = new byte[longueur];
+			TabInputStream.read(domaine);
+			
+			nomDom.append(new String(domaine));
+			longueur = TabInputStream.read();
+			
+		}
+		
+		String nomDomaine = nomDom.toString();
+		
+		return nomDomaine;
 	}
 }

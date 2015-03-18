@@ -223,7 +223,20 @@ public class UDPReceiver extends Thread {
 				
 					// *Ajouter la ou les correspondance(s) dans le fichier DNS
 					// si elles ne y sont pas deja
-					//AnswerRecorder recorder = new AnswerRecorder(DNSFile, DomainName, adresseIP);	
+					
+					QueryFinder find = new QueryFinder(DNSFile, SERVER_DNS);
+					List<String> comparable = find.StartResearch(this.DomainName);
+					if(comparable == null || comparable.size() == 0){
+						AnswerRecorder enregistreur = new AnswerRecorder(DNSFile);
+						enregistreur.StartRecord(DomainName, adresseIP);
+						
+					}
+					UDPSender envoyeur = new UDPSender(getAdrIP(), port,serveur );
+					envoyeur.SendPacketNow(paquetRecu);
+					
+					
+					
+						
 						// *Faire parvenir le paquet reponse au demandeur original,
 						// ayant emis une requete avec cet identifiant				
 						// *Placer ce paquet dans le socket

@@ -87,6 +87,7 @@ public class QueryFinder  {
 		//prend une ligne
 		uneligne = scanneurFichierSource.nextLine();
 		hostnameFromFile = uneligne.split(" ");
+		scanneurFichierSource.nextLine();
 		
 		do {
 			uneligne = scanneurFichierSource.nextLine();

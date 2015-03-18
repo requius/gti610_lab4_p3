@@ -3,3 +3,4 @@ google.com 38.7.248.176
 google.ca 38.7.248.176
 cinemamontreal.com 66.48.100.60
 facebook.com 173.252.120.6
+google.com 38.7.248.176

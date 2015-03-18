@@ -188,6 +188,7 @@ public class UDPReceiver extends Thread {
 						
 							// *Creer le paquet de reponse a l'aide du UDPAnswerPaquetCreator
 							 UDPAnswerPacketCreator packetCreator = UDPAnswerPacketCreator.getInstance();
+
 							 byte[] reponse = packetCreator.CreateAnswerPacket(paquetR, trouver);
 							// *Placer ce paquet dans le socket
 							 DatagramPacket paquetReponse = new DatagramPacket(reponse, reponse.length);

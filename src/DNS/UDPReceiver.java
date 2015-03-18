@@ -85,7 +85,7 @@ public class UDPReceiver extends Thread {
 	}
 	
 	
-	public void setport(int p) {
+	public void setPort(int p) {
 		this.port = p;
 	}
 
@@ -158,7 +158,7 @@ public class UDPReceiver extends Thread {
 					TabInputStream.skip(16);
 					// *Sauvegarde de l'adresse, du port et de l'identifiant de la requete
 					setAdrIP(paquetRecu.getAddress().getHostAddress());
-					setport(paquetRecu.getPort());
+					setPort(paquetRecu.getPort());
 					
 					// *Si le mode est redirection seulement
 					if (RedirectionSeulement){

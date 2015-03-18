@@ -88,6 +88,9 @@ public class UDPReceiver extends Thread {
 	public void setPort(int p) {
 		this.port = p;
 	}
+	public int getPort(){
+		return port;
+	}
 
 	public void setRedirectionSeulement(boolean b) {
 		this.RedirectionSeulement = b;
@@ -163,18 +166,36 @@ public class UDPReceiver extends Thread {
 					// *Si le mode est redirection seulement
 					if (RedirectionSeulement){
 						// *Rediriger le paquet vers le serveur DNS
-						
+						UDPSender sender = new UDPSender(SERVER_DNS, portRedirect,serveur );
+						sender.SendPacketNow(paquetRecu);
 					}	
 					// *Sinons
+					else{
 						// *Rechercher l'adresse IP associe au Query Domain name
 						// dans le fichier de correspondance de ce serveur					
-
+						QueryFinder finder = new QueryFinder(DNSFile, SERVER_DNS);
+						 List<String> trouver = finder.StartResearch(this.DomainName);
 						// *Si la correspondance n'est pas trouvee
+						 if(trouver == null || trouver.size() == 0)
+						 {
 							// *Rediriger le paquet vers le serveur DNS
-						// *Sinon	
+							 
+							 UDPSender rediriger = new UDPSender(SERVER_DNS, portRedirect, serveur);
+							 rediriger.SendPacketNow(paquetRecu);
+						 }
+						// *Sinon
+						 else {
+						
 							// *Creer le paquet de reponse a l'aide du UDPAnswerPaquetCreator
+							 UDPAnswerPacketCreator packetCreator = UDPAnswerPacketCreator.getInstance();
+							 byte[] reponse = packetCreator.CreateAnswerPacket(paquetR, trouver);
 							// *Placer ce paquet dans le socket
+							 DatagramPacket paquetReponse = new DatagramPacket(reponse, reponse.length);
 							// *Envoyer le paquet
+							 UDPSender repondeur = new UDPSender(SERVER_DNS, portRedirect,serveur );
+							 repondeur.SendPacketNow(paquetReponse);
+						 }
+					}
 				}
 				// ****** Dans le cas d'un paquet reponse *****
 				else if (reponseRequete == 1) {
@@ -185,6 +206,7 @@ public class UDPReceiver extends Thread {
 					System.out.println(DomainName);
 					
 					// *Passe par dessus Type et Class
+					
 					// *Passe par dessus les premiers champs du ressource record
 					// pour arriver au ressource data qui contient l'adresse IP associe
 					//  au hostname (dans le fond saut de 16 bytes)
